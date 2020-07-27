@@ -1,5 +1,8 @@
 package com.billhorvath.schedulinator;
 
+import java.util.*;
+import java.util.stream.*;
+
 public class Schedulinator {
 
     public static void main(String[] args) {
@@ -10,7 +13,10 @@ public class Schedulinator {
                     "this application. E.g., java -cp . com.billhorvath.schedulinator.Schedulinator 2 3 4 7 2 4");
             System.exit(result);
         }
-
+        List<Integer> asIntegers = Arrays.stream(args).map(Integer::parseInt).collect(Collectors.toList());
+        int size = asIntegers.size();
+        int half = size / 2;
+        ScheduleAnalyzer analyzer = new ScheduleAnalyzer(asIntegers.subList(0, half), asIntegers.subList(half, size));
     }
 
 

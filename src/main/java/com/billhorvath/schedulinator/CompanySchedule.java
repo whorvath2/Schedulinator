@@ -27,9 +27,9 @@ public class CompanySchedule implements Comparator<CompanySchedule> {
 	public static boolean areOverlapping(CompanySchedule one, CompanySchedule two){
 		Range oneRange = new Range(one.arrival, one.arrival + one.duration);
 		Range twoRange = new Range(two.arrival, two.arrival + two.duration);
-		if (twoRange.top == oneRange.bottom || twoRange.bottom == oneRange.top) return true;
-		return (oneRange.bottom < twoRange.top && oneRange.bottom >= twoRange.bottom)
-				|| (twoRange.bottom < oneRange.top && twoRange.top >= oneRange.bottom);
+		boolean result = (oneRange.inRange(twoRange.top) || oneRange.inRange(twoRange.bottom))
+				|| (twoRange.inRange(oneRange.top) || twoRange.inRange(oneRange.bottom));
+		return result;
 	}
 
 	/**
@@ -75,6 +75,7 @@ public class CompanySchedule implements Comparator<CompanySchedule> {
 	 * A simple number range defined by a top and bottom value.
 	 */
 	private static class Range{
+
 		private final int bottom, top;
 
 		public Range(int a, int b){
@@ -84,7 +85,21 @@ public class CompanySchedule implements Comparator<CompanySchedule> {
 		}
 
 		public boolean inRange(int value){
-			return value >= bottom && value <= top;
+			return value > bottom && value < top;
 		}
+
+		@Override
+		public String toString(){
+			return "Range: {" +
+					" bottom: " + bottom +
+					"; top: " + top + ";}";
+		}
+	}
+
+	@Override
+	public String toString(){
+		return "CompanySchedule: {" +
+				" arrival: " + arrival +
+				"; duration: " + duration + ";}";
 	}
 }

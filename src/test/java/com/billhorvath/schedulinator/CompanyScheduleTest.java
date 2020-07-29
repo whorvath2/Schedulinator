@@ -2,6 +2,8 @@ package com.billhorvath.schedulinator;
 
 import org.junit.Test;
 
+import java.util.*;
+
 import static org.junit.Assert.*;
 
 public class CompanyScheduleTest {
@@ -23,12 +25,27 @@ public class CompanyScheduleTest {
 
 	@Test
 	public void compareWorks() {
+
 		CompanySchedule one = new CompanySchedule(1, 2);
-		CompanySchedule two = new CompanySchedule(3, 2);
+		CompanySchedule two = new CompanySchedule(3, 3);
+		CompanySchedule three = new CompanySchedule(3, 4);
+
 		assertEquals(-1, one.compare(one, two));
+		assertEquals(-1, one.compare(two, three));
 		assertEquals(1, one.compare(two, one));
+		assertEquals(1, one.compare(three, two));
 		assertEquals(0, one.compare(null, null));
 		assertEquals(-1, one.compare(one, null));
 		assertEquals(1, one.compare(null, one));
+		assertEquals(0, one.compare(three, three));
+
+		assertEquals(-1, one.compare(two, three));
+
+		List<CompanySchedule> list = Arrays.asList(two, three, one);
+		list.sort(CompanySchedule::compareTo);
+		assertEquals(one, list.get(0));
+		assertEquals(two, list.get(1));
+		assertEquals(three, list.get(2));
+
 	}
 }

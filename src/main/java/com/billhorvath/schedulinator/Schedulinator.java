@@ -6,7 +6,6 @@ import java.util.stream.*;
 public class Schedulinator {
 
     public static void main(String[] args) {
-        // Let's get out of the startup class...
         int result = Schedulinator.validate(args);
         if (result > 0){
             System.err.println("ERROR: you must supply an even number of two or more integer arguments when running " +
@@ -17,6 +16,7 @@ public class Schedulinator {
         int size = asIntegers.size();
         int half = size / 2;
         ScheduleAnalyzer analyzer = new ScheduleAnalyzer(asIntegers.subList(0, half), asIntegers.subList(half, size));
+        System.out.println(analyzer.maxMeetings());
     }
 
 

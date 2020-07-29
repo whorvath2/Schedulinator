@@ -3,13 +3,29 @@ package com.billhorvath.schedulinator;
 import java.util.*;
 
 /**
- * Tracks the arrival time and duration of stay for a company.
+ * Tracks the arrival time and duration of stay for a company's representatives.
+ * Company Schedule objects are immutable by design.
  */
-public class CompanySchedule implements Comparator<CompanySchedule> {
+public class CompanySchedule implements Comparator<CompanySchedule>, Comparable<CompanySchedule> {
 
 	private final int arrival;
 	private final int duration;
 
+
+	/**
+	 * Default (no-arg) constructor.
+	 */
+	public CompanySchedule(){
+		this(0, 0);
+	}
+
+
+	/**
+	 * Constructor which defines all of this company schedule's field values.
+	 *
+	 * @param arrival The time at which the company's representatives will arrive.
+	 * @param duration The length of time of the company's presentation.
+	 */
 	public CompanySchedule(int arrival, int duration){
 		if (arrival < 0 || duration < 0){
 			throw new IllegalArgumentException("Neither arrival nor duration may be less than zero.");
@@ -18,28 +34,50 @@ public class CompanySchedule implements Comparator<CompanySchedule> {
 		this.duration = duration;
 	}
 
-	/**
-	 *
-	 * @param one
-	 * @param two
-	 * @return
-	 */
-	public static boolean areOverlapping(CompanySchedule one, CompanySchedule two){
-		Range oneRange = new Range(one.arrival, one.arrival + one.duration);
-		Range twoRange = new Range(two.arrival, two.arrival + two.duration);
-		boolean result = (oneRange.inRange(twoRange.top) || oneRange.inRange(twoRange.bottom))
-				|| (twoRange.inRange(oneRange.top) || twoRange.inRange(oneRange.bottom));
-		return result;
-	}
 
 	/**
+	 * Returns <code>true</code> if one and two are overlapping, such that either the end of one's schedule lies in
+	 * two's schedule, or the beginning of two's schedule lies in one's schedule; <code>false</code> otherwise. The
+	 * schedule is demarcated by each value's arrival (at the beginning) and the sum of the arrival and the duration
+	 * (at the end.) Note that if one's beginning is equal to two's end, or one's end is equal to two's beginning,
+	 * this method will return false.
 	 *
-	 * @param other
-	 * @return
+	 * @param one The schedule to be compared for overlap with two.
+	 * @param two The schedule to be compared for overlap with one.
+	 * @return true if one and two overlap.
 	 */
-	public boolean isOverlapping(CompanySchedule other){
+	public static boolean areOverlapping(CompanySchedule one, CompanySchedule two){
+		if (one.equals(two)){
+			return true;
+		}
+		Range oneRange = new Range(one.arrival, one.arrival + one.duration);
+		Range twoRange = new Range(two.arrival, two.arrival + two.duration);
+		return (oneRange.inRange(twoRange.top) || oneRange.inRange(twoRange.bottom))
+				|| (twoRange.inRange(oneRange.top) || twoRange.inRange(oneRange.bottom));
+	}
+
+
+	/**
+	 * <p></p>Returns <code>true</code> under any of the following conditions:</p>
+	 *
+	 * <ul>
+	 *     <li>The supplied company schedule is equal to this company schedule;</li>
+	 *     <li>The supplied company schedule's arrival is between this company's arrival and end time;</li>
+	 *     <li>The supplied company schedule's end time is between this company's arrival and end time.</li>
+	 * </ul>
+	 *
+	 * <p>This method returns <code>false</code> otherwise.</p>
+	 *
+	 * @param other The other company schedule whose scheduled arrival and end time may overlap with this company
+	 *                 schedule's arrival and end time.
+	 * @return <code>true</code> if the supplied company schedule is equal to this company schedule, or if the
+	 * timing of their arrivals or end times overlap.
+	 */
+	public boolean overlaps(CompanySchedule other){
+
 		return areOverlapping(this, other);
 	}
+
 
 	/**
 	 * Returns -1, 0, or 1 as one.arrival is less than, equal to, or greater than two.arrival. More specifically:
@@ -61,7 +99,7 @@ public class CompanySchedule implements Comparator<CompanySchedule> {
 	public int compare(CompanySchedule one, CompanySchedule two) {
 		if (one != null){
 			if (two != null){
-				return Integer.compare(one.arrival, two.arrival);
+				return one.compareTo(two);
 			}
 			return -1;
 		}
@@ -69,6 +107,29 @@ public class CompanySchedule implements Comparator<CompanySchedule> {
 			? 1
 			: 0;
 	}
+
+	@Override
+	public int compareTo(CompanySchedule other) {
+		if (other != null){
+			return this.arrival == other.arrival
+					? Integer.compare(this.duration, other.duration)
+					: Integer.compare(this.arrival, other.arrival);
+		}
+		return 1;
+	}
+
+	public int endTime(){
+		return this.arrival + this.duration;
+	}
+
+	public int arrival(){
+		return this.arrival;
+	}
+
+	public int duration(){
+		return this.duration;
+	}
+
 
 
 	/**
@@ -84,6 +145,15 @@ public class CompanySchedule implements Comparator<CompanySchedule> {
 			top = aFirst ? b : a;
 		}
 
+
+		/**
+		 * Returns <code>true</code> if the supplied value is exclusively outside of this range; <code>false</code>
+		 * otherwise. I.e., returns true if the supplied value is greater than this range's bottom and less than
+		 * its top.
+		 *
+		 * @param value The value to be check to see if it falls between the bottom and top of this range.
+		 * @return true if value falls within this range; false otherwise.
+		 */
 		public boolean inRange(int value){
 			return value > bottom && value < top;
 		}
@@ -101,5 +171,22 @@ public class CompanySchedule implements Comparator<CompanySchedule> {
 		return "CompanySchedule: {" +
 				" arrival: " + arrival +
 				"; duration: " + duration + ";}";
+	}
+
+
+	@Override
+	public int hashCode() {
+		return arrival * 17 + duration * 17;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		return (obj == this || obj instanceof CompanySchedule && equals((CompanySchedule)obj));
+	}
+
+	private boolean equals(CompanySchedule other){
+		return other.duration == this.duration
+				&& other.arrival == this.arrival;
 	}
 }

@@ -147,7 +147,7 @@ public class CompanySchedule implements Comparator<CompanySchedule>, Comparable<
 
 
 		/**
-		 * Returns <code>true</code> if the supplied value is exclusively outside of this range; <code>false</code>
+		 * Returns <code>true</code> if the supplied value is exclusively inside of this range; <code>false</code>
 		 * otherwise. I.e., returns true if the supplied value is greater than this range's bottom and less than
 		 * its top.
 		 *
